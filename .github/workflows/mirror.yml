@@ -1,8 +1,11 @@
 name: Mirror server-world.info
 on:
   schedule:
-    - cron: '0 18 * * *'   # UTC 时间每天0点跑，对应北京时间早8点
-  workflow_dispatch:      # 手动点击按钮触发，测试用
+    - cron: '0 10 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+  pages: write
 
 jobs:
   mirror:
@@ -19,12 +22,7 @@ jobs:
 
       - name: Mirror website
         run: |
-          # 清空旧文件（保留当前目录，避免分支残留）
           rm -rf ./*
-          # wget 镜像参数：镜像、转换链接、适配后缀、下载页面资源、不爬上级目录
-          # --wait=2 每个请求间隔2秒，降低被封概率
-          # --no-parent 不爬到站点外
-          # --exclude-directories 排除不需要的目录，按需增删
           wget --mirror \
                --convert-links \
                --adjust-extension \
@@ -33,8 +31,10 @@ jobs:
                --wait=2 \
                --random-wait \
                --exclude-directories=/cgi-bin,/tmp \
+               --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36" \
+               --header="Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8" \
+               --header="Referer: https://www.server-world.info/" \
                https://server-world.info/
-          # 把抓取出来的目录里面文件挪到根目录
           mv server-world.info/* ./ || true
           rm -rf server-world.info
 
