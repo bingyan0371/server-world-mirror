@@ -1,7 +1,7 @@
 name: Mirror server-world.info
 on:
   schedule:
-    - cron: '0 10 * * *'
+    - cron: '0 0 * * *'
   workflow_dispatch:
 permissions:
   contents: write
@@ -11,18 +11,17 @@ jobs:
   mirror:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout gh-pages branch
+      - name: Checkout main
         uses: actions/checkout@v4
-        with:
-          ref: gh-pages
-          fetch-depth: 0
 
       - name: Install wget
         run: sudo apt update && sudo apt install -y wget
 
       - name: Mirror website
         run: |
-          rm -rf ./*
+          # 新建临时目录存放抓取结果，避免污染仓库主分支
+          mkdir -p public
+          cd public
           wget --mirror \
                --convert-links \
                --adjust-extension \
@@ -42,4 +41,4 @@ jobs:
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
+          publish_dir: ./public
