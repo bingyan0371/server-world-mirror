@@ -1,7 +1,7 @@
 name: Mirror server-world.info en
 on:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 11 * * *'
   workflow_dispatch:
 permissions:
   contents: write
