@@ -1,0 +1,45 @@
+name: Mirror server-world.info
+on:
+  schedule:
+    - cron: '0 18 * * *'   # UTC 时间每天0点跑，对应北京时间早8点
+  workflow_dispatch:      # 手动点击按钮触发，测试用
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          fetch-depth: 0
+
+      - name: Install wget
+        run: sudo apt update && sudo apt install -y wget
+
+      - name: Mirror website
+        run: |
+          # 清空旧文件（保留当前目录，避免分支残留）
+          rm -rf ./*
+          # wget 镜像参数：镜像、转换链接、适配后缀、下载页面资源、不爬上级目录
+          # --wait=2 每个请求间隔2秒，降低被封概率
+          # --no-parent 不爬到站点外
+          # --exclude-directories 排除不需要的目录，按需增删
+          wget --mirror \
+               --convert-links \
+               --adjust-extension \
+               --page-requisites \
+               --no-parent \
+               --wait=2 \
+               --random-wait \
+               --exclude-directories=/cgi-bin,/tmp \
+               https://server-world.info/
+          # 把抓取出来的目录里面文件挪到根目录
+          mv server-world.info/* ./ || true
+          rm -rf server-world.info
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
