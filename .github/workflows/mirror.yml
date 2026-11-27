@@ -35,6 +35,7 @@ jobs:
                https://server-world.info/en
           mv server-world.info/en/* ./ || true
           rm -rf server-world.info
+          ls -la # 打印目录，方便看有没有抓到文件
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
