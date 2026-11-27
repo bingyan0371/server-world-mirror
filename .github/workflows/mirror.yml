@@ -1,4 +1,4 @@
-name: Mirror server-world.info
+name: Mirror server-world.info en
 on:
   schedule:
     - cron: '0 0 * * *'
@@ -19,7 +19,6 @@ jobs:
 
       - name: Mirror website
         run: |
-          # 新建临时目录存放抓取结果，避免污染仓库主分支
           mkdir -p public
           cd public
           wget --mirror \
@@ -29,12 +28,12 @@ jobs:
                --no-parent \
                --wait=2 \
                --random-wait \
-               --exclude-directories=/cgi-bin,/tmp \
+               --exclude-directories=/cgi-bin,/tmp,/ja \
                --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36" \
                --header="Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8" \
-               --header="Referer: https://www.server-world.info/" \
-               https://server-world.info/
-          mv server-world.info/* ./ || true
+               --header="Referer: https://server-world.info/en" \
+               https://server-world.info/en
+          mv server-world.info/en/* ./ || true
           rm -rf server-world.info
 
       - name: Deploy to GitHub Pages
